@@ -33,16 +33,17 @@ router.post('', checkAuth, multer({storage: storage}).single('image'), (req, res
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    imagePath: url + '/images/' + req.file.filename
+    imagePath: url + '/images/' + req.file.filename    ,
+    creator: req.userData.userId
   });
-   console.log(post);
-   post.save().then((result) => {
-     console.log(result);
+
+   post.save().then((createdPost) => {
+     console.log(createdPost);
      res.status(201).json({
       message: 'Post added successfully',
       post: {
-        ...result,
-        id: result._id
+        ...createdPost,
+        id: createdPost._id
       }
     });
    });
@@ -101,7 +102,7 @@ router.put('/:id', checkAuth, multer({storage: storage}).single('image'), (req, 
     content: req.body.content,
     imagePath: imagePath
   });
-  Post.updateOne({ _id: req.params.id}, post).then(result => {
+  Post.updateOne({ _id: req.params.id, creator: req.userData.userId}, post).then(result => {
     console.log(result);
     res.status(200).json({
       message: "Update successful"
